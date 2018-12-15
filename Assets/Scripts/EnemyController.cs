@@ -5,11 +5,12 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour {
 
-	private float _speed = 1.0f;
-
 	private static PlayerController _player;
 	private static Camera _mainCam;
+
+	private float _speed = 1.0f;
 	private Renderer _myRenderer;
+	private bool _stunningPlayer;
 
 	private void Start ()
 	{
@@ -25,7 +26,10 @@ public class EnemyController : MonoBehaviour {
 	private void Update ()
 	{
 		float step = _speed * Time.deltaTime;
-		transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, step);
+		if (Vector3.Distance(transform.position, _player.transform.position) < 40)
+		{
+			transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, step);
+		}
 
 		if (_player.transform.position != Vector3.zero)
 		{
@@ -43,13 +47,19 @@ public class EnemyController : MonoBehaviour {
 
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;
 		Vector2 screenPoint = _mainCam.WorldToScreenPoint(transform.position);
-		if (Vector2.Distance(gazePoint, screenPoint) < 250f)
+		if (Vector2.Distance(gazePoint, screenPoint) < 250f && !_stunningPlayer)
 		{
-			_myRenderer.material.color = Color.blue;
+			_stunningPlayer = true;
+			StartCoroutine(StunPlayer());
 		}
-		else
-		{
-			_myRenderer.material.color = Color.red;
-		}
+	}
+
+	private IEnumerator StunPlayer()
+	{
+		_myRenderer.material.color = Color.blue;
+		StartCoroutine(_player.StunPlayer());
+		yield return new WaitForSeconds(3);
+		_myRenderer.material.color = Color.red;
+		_stunningPlayer = false;
 	}
 }

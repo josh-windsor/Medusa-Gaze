@@ -5,16 +5,20 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
 	private Vector2 _middlePoint;
 	private Camera _mainCam;
-    private int _hp = 100;
-    private bool _takenDmg = false;
+	private int _hp = 100;
+	private bool _takenDmg = false;
+	private bool _stunned = false;
+	private Renderer _myRenderer;
 
 	// Use this for initialization
 	void Start ()
 	{
 		_middlePoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
 		_mainCam = Camera.main;
+		_myRenderer = GetComponent<Renderer>();
 	}
 	
 	// Update is called once per frame
@@ -23,23 +27,25 @@ public class PlayerController : MonoBehaviour
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;
 		float xDif = (_middlePoint.x - gazePoint.x) * -1;
 		float zDif = (_middlePoint.y - gazePoint.y) * -1;
-		/*if (xDif < -300)
+		if (!_stunned || _takenDmg)
 		{
-			transform.position += new Vector3(xDif / 10000, 0, 0);
+			if (xDif < -300)
+			{
+				transform.position += new Vector3(xDif / 10000, 0, 0);
+			}
+			else if (xDif > 300)
+			{
+				transform.position += new Vector3(xDif / 10000, 0, 0);
+			}
+			if (zDif < -250)
+			{
+				transform.position += new Vector3(0, 0, zDif / 10000);
+			}
+			else if (zDif > 250)
+			{
+				transform.position += new Vector3(0, 0, zDif / 10000);
+			}
 		}
-		else if (xDif > 300)
-		{
-			transform.position += new Vector3(xDif / 10000, 0, 0);
-		}
-		if (zDif < -250)
-		{
-			transform.position += new Vector3(0, 0, zDif / 10000);
-		}
-		else if (zDif > 250)
-		{
-			transform.position += new Vector3(0, 0, zDif / 10000);
-		}*/
-
 		Vector3 direction = new Vector3(xDif, 0, zDif);
 		if (direction != Vector3.zero)
 		{
@@ -52,27 +58,43 @@ public class PlayerController : MonoBehaviour
 		_mainCam.transform.position = new Vector3(transform.position.x, 10, transform.position.z);
 	}
 
-    public void TakeDamage(int iDamage)
-    {
-        if (!_takenDmg)
-        {
-            _takenDmg = true;
-            _hp -= iDamage;
-            StartCoroutine(WaitForDmg());
+	public void TakeDamage(int iDamage)
+	{
+		if (!_takenDmg)
+		{
+			_takenDmg = true;
+			_hp -= iDamage;
+			StopAllCoroutines();
+			_stunned = false;
 
-            Debug.Log("Dmg Taken");
-            if (_hp <= 0)
-            {
-                //ded
-                Debug.Log("U Ded");
-            }
+			StartCoroutine(WaitForDmg());
 
-        }
-    }
+			if (_hp <= 0)
+			{
+				Destroy(this.gameObject);
+			}
+		}
+	}
 
-    private IEnumerator WaitForDmg()
-    {
-        yield return new WaitForSeconds(3.0f);
-        _takenDmg = false;
-    }
+	private IEnumerator WaitForDmg()
+	{
+		_myRenderer.material.color = Color.red;
+		yield return new WaitForSeconds(0.5f);
+		_myRenderer.material.color = Color.yellow;
+		yield return new WaitForSeconds(2.5f);
+		_takenDmg = false;
+		_myRenderer.material.color = Color.white;
+	}
+
+	public IEnumerator StunPlayer()
+	{
+		if (!_stunned)
+		{
+			_stunned = true;
+			_myRenderer.material.color = Color.cyan;
+			yield return new WaitForSeconds(3);
+			_myRenderer.material.color = Color.white;
+			_stunned = false;
+		}
+	}
 }
