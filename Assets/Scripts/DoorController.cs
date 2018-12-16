@@ -37,7 +37,7 @@ public class DoorController : MonoBehaviour
 			{
 				Destroy(this.gameObject);
 			}
-			c.a = c.a - 0.004f;
+			c.a = c.a - 0.003f;
 			_myRenderer.material.color = c;
 		}
 

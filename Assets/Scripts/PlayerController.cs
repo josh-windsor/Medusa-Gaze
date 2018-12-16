@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 	private bool _stunned = false;
 	private Renderer _myRenderer;
 	private Text _hpText;
+	private UiController _UIController;
 
 	// Use this for initialization
 	void Start ()
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviour
 		_myRenderer = GetComponent<Renderer>();
 		_hpText = GameObject.Find("HpTxt").GetComponent<Text>();
 		_hpText.text = "HP: " + _hp;
+		_UIController = GameObject.Find("Canvas").GetComponent<UiController>();
 	}
 
 	// Update is called once per frame
@@ -76,7 +78,7 @@ public class PlayerController : MonoBehaviour
 
 			if (_hp <= 0)
 			{
-				Destroy(this.gameObject);
+				_UIController.LoseGame();
 			}
 		}
 	}

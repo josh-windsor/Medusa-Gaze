@@ -4,18 +4,17 @@ using UnityEngine.UI;
 
 public class UiController : MonoBehaviour
 {
-	private GameObject _pointerSprite;
 	
 	[SerializeField]
 	private GameObject _level;
+	private GameObject _pointerSprite;
+	private Text _infoText;
 
 	private static GameObject _currentLevel;
-
 	private static GameObject _panel;
-
 	private static Image _startBtn;
-
 	private static bool _gameRunning = false;
+
 	// Use this for initialization
 	private void Start ()
 	{
@@ -24,6 +23,7 @@ public class UiController : MonoBehaviour
 		_currentLevel.SetActive(false);
 		_panel = GameObject.Find("Panel");
 		_startBtn = GameObject.Find("StartBtn").GetComponent<Image>();
+		_infoText = GameObject.Find("InfoText").GetComponent<Text>();
 	}
 
 	// Update is called once per frame
@@ -59,7 +59,19 @@ public class UiController : MonoBehaviour
 		}
 	}
 
-	public void EndGame()
+    public void WinGame()
+    {
+        _infoText.text = "Well Done!";
+        EndGame();
+    }
+
+    public void LoseGame()
+    {
+        _infoText.text = "You Died!\nTry Again.";
+        EndGame();
+    }
+
+	private void EndGame()
 	{
 		_gameRunning = false;
 		Destroy(_currentLevel);
@@ -69,6 +81,5 @@ public class UiController : MonoBehaviour
 		Color c = _startBtn.material.color;
 		c.a = 1;
 		_startBtn.material.color = c;
-
 	}
 }
