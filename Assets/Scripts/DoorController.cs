@@ -18,6 +18,9 @@ public class DoorController : MonoBehaviour
 		if (_mainCam == null)
 		{
 			_mainCam = Camera.main;
+		}
+		if (_player == null)
+		{
 			_player = GameObject.Find("Player").GetComponent<PlayerController>();
 		}
 	}
@@ -27,14 +30,14 @@ public class DoorController : MonoBehaviour
 	void Update () {
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;
 		Vector2 screenPoint = _mainCam.WorldToScreenPoint(transform.position);
-		if (Vector2.Distance(gazePoint, screenPoint) < 250f && Vector3.Distance(transform.position, _player.transform.position) < 10f)
+		if (Vector2.Distance(gazePoint, screenPoint) < 250f && Vector3.Distance(transform.position, _player.transform.position) < 5f)
 		{
 			Color c = _myRenderer.material.color;
-		    if (c.a < 0.1f)
-		    {
-		        Destroy(this.gameObject);
-		    }
-			c.a = c.a - 0.01f;
+			if (c.a < 0.01f)
+			{
+				Destroy(this.gameObject);
+			}
+			c.a = c.a - 0.004f;
 			_myRenderer.material.color = c;
 		}
 

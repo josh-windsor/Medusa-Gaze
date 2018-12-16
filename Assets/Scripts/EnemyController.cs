@@ -15,10 +15,13 @@ public class EnemyController : MonoBehaviour {
 	private void Start ()
 	{
 		_myRenderer = GetComponent<Renderer>();
+		if (_player == null)
+		{
+			_player = GameObject.Find("Player").GetComponent<PlayerController>();
+		}
 		if (_mainCam == null)
 		{
 			_mainCam = Camera.main;
-			_player = GameObject.Find("Player").GetComponent<PlayerController>();
 		}
 	}
 
@@ -42,7 +45,7 @@ public class EnemyController : MonoBehaviour {
 
 		if (Vector3.Distance(transform.position, _player.transform.position) < 2f)
 		{
-			_player.TakeDamage(5);
+			_player.TakeDamage(10);
 		}
 
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;

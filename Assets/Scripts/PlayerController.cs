@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using Tobii.Gaming;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
 
 	private Vector2 _middlePoint;
 	private Camera _mainCam;
-	private int _hp = 100;
+	private int _hp = 50;
 	private bool _takenDmg = false;
 	private bool _stunned = false;
 	private Renderer _myRenderer;
+	private Text _hpText;
 
 	// Use this for initialization
 	void Start ()
@@ -19,8 +21,10 @@ public class PlayerController : MonoBehaviour
 		_middlePoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
 		_mainCam = Camera.main;
 		_myRenderer = GetComponent<Renderer>();
+		_hpText = GameObject.Find("HpTxt").GetComponent<Text>();
+		_hpText.text = "HP: " + _hp;
 	}
-	
+
 	// Update is called once per frame
 	private void Update ()
 	{
@@ -64,6 +68,7 @@ public class PlayerController : MonoBehaviour
 		{
 			_takenDmg = true;
 			_hp -= iDamage;
+			_hpText.text = "HP: " + _hp;
 			StopAllCoroutines();
 			_stunned = false;
 
