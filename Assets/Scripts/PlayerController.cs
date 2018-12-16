@@ -29,19 +29,19 @@ public class PlayerController : MonoBehaviour
 		float zDif = (_middlePoint.y - gazePoint.y) * -1;
 		if (!_stunned || _takenDmg)
 		{
-			if (xDif < -300)
+			if (xDif < -200)
 			{
 				transform.position += new Vector3(xDif / 10000, 0, 0);
 			}
-			else if (xDif > 300)
+			else if (xDif > 200)
 			{
 				transform.position += new Vector3(xDif / 10000, 0, 0);
 			}
-			if (zDif < -250)
+			if (zDif < -200)
 			{
 				transform.position += new Vector3(0, 0, zDif / 10000);
 			}
-			else if (zDif > 250)
+			else if (zDif > 200)
 			{
 				transform.position += new Vector3(0, 0, zDif / 10000);
 			}
