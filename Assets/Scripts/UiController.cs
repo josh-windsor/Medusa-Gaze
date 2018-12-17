@@ -1,10 +1,11 @@
-﻿using Tobii.Gaming;
+﻿using System.Collections.Generic;
+using Tobii.Gaming;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UiController : MonoBehaviour
 {
-	
+
 	[SerializeField]
 	private GameObject _level;
 	private GameObject _pointerSprite;
@@ -14,11 +15,20 @@ public class UiController : MonoBehaviour
 	private static GameObject _panel;
 	private static Image _startBtn;
 	private static bool _gameRunning = false;
+	private readonly bool _debugPointer = false;
+
 
 	// Use this for initialization
 	private void Start ()
 	{
-		_pointerSprite = GameObject.Find("Pointer");
+		if (_debugPointer)
+		{
+			_pointerSprite = GameObject.Find("Pointer");
+		}
+		else
+		{
+			GameObject.Find("Pointer").SetActive(false);
+		}
 		_currentLevel = Instantiate(_level);
 		_currentLevel.SetActive(false);
 		_panel = GameObject.Find("Panel");
@@ -26,15 +36,15 @@ public class UiController : MonoBehaviour
 		_infoText = GameObject.Find("InfoText").GetComponent<Text>();
 	}
 
+
 	// Update is called once per frame
 	private void Update ()
 	{
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;
-
-		#if UNITY_EDITOR
+		if (_debugPointer)
+		{
 			_pointerSprite.transform.position = gazePoint;
-		#endif
-
+		}
 		if (!_gameRunning)
 		{
 			if (Vector2.Distance(gazePoint, _startBtn.transform.position) < 250f)
@@ -59,17 +69,17 @@ public class UiController : MonoBehaviour
 		}
 	}
 
-    public void WinGame()
-    {
-        _infoText.text = "Well Done!";
-        EndGame();
-    }
+	public void WinGame()
+	{
+		_infoText.text = "Well Done!";
+		EndGame();
+	}
 
-    public void LoseGame()
-    {
-        _infoText.text = "You Died!\nTry Again.";
-        EndGame();
-    }
+	public void LoseGame()
+	{
+		_infoText.text = "You Died!\nTry Again.";
+		EndGame();
+	}
 
 	private void EndGame()
 	{

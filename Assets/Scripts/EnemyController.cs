@@ -11,10 +11,18 @@ public class EnemyController : MonoBehaviour {
 	private float _speed = 1.0f;
 	private Renderer _myRenderer;
 	private bool _stunningPlayer;
+	private LineRenderer _playerLine;
 
 	private void Start ()
 	{
 		_myRenderer = GetComponent<Renderer>();
+		GameObject line = Instantiate(new GameObject(), this.transform);
+		_playerLine = line.AddComponent<LineRenderer>();
+		_playerLine.startColor = Color.red;
+		_playerLine.endColor = Color.red;
+		_playerLine.startWidth = 0.2f;
+		_playerLine.endWidth = 0.2f;
+		_playerLine.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
 		if (_player == null)
 		{
 			_player = GameObject.Find("Player").GetComponent<PlayerController>();
@@ -25,13 +33,29 @@ public class EnemyController : MonoBehaviour {
 		}
 	}
 
-	// Update is called once per frame
+	// Update is called once per framec
 	private void Update ()
 	{
 		float step = _speed * Time.deltaTime;
 		if (Vector3.Distance(transform.position, _player.transform.position) < 40)
 		{
 			transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, step);
+
+			Vector3 pos = Camera.main.WorldToViewportPoint(transform.position);
+
+			if (pos.x < 0.0 || 1.0 < pos.x || pos.y < 0.0 || 1.0 < pos.y)
+			{
+				_playerLine.gameObject.SetActive(true);
+				_playerLine.SetPositions(new[] { _player.transform.position, transform.position });
+			}
+			else
+			{
+				_playerLine.gameObject.SetActive(false);
+			}
+		}
+		else
+		{
+			_playerLine.gameObject.SetActive(false);
 		}
 
 		if (_player.transform.position != Vector3.zero)
@@ -55,6 +79,7 @@ public class EnemyController : MonoBehaviour {
 			_stunningPlayer = true;
 			StartCoroutine(StunPlayer());
 		}
+
 	}
 
 	private IEnumerator StunPlayer()
