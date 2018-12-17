@@ -5,27 +5,59 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour {
 
-	private float _speed = 1.0f;
-
 	private static PlayerController _player;
 	private static Camera _mainCam;
+
+	private float _speed = 1.0f;
 	private Renderer _myRenderer;
+	private bool _stunningPlayer;
+	private LineRenderer _playerLine;
 
 	private void Start ()
 	{
 		_myRenderer = GetComponent<Renderer>();
+		GameObject line = new GameObject("Line");
+		line.transform.parent = this.transform;
+		_playerLine = line.AddComponent<LineRenderer>();
+		_playerLine.startColor = Color.red;
+		_playerLine.endColor = Color.red;
+		_playerLine.startWidth = 0.2f;
+		_playerLine.endWidth = 0.2f;
+		_playerLine.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
+		if (_player == null)
+		{
+			_player = GameObject.Find("Player").GetComponent<PlayerController>();
+		}
 		if (_mainCam == null)
 		{
 			_mainCam = Camera.main;
-			_player = GameObject.Find("Player").GetComponent<PlayerController>();
 		}
 	}
 
-	// Update is called once per frame
-	private void Update ()
+	// Update is called once per framec
+	private void FixedUpdate ()
 	{
 		float step = _speed * Time.deltaTime;
-		transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, step);
+		if (Vector3.Distance(transform.position, _player.transform.position) < 40)
+		{
+			transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, step);
+
+			Vector3 pos = Camera.main.WorldToViewportPoint(transform.position);
+
+			if (pos.x < 0.0 || 1.0 < pos.x || pos.y < 0.0 || 1.0 < pos.y)
+			{
+				_playerLine.gameObject.SetActive(true);
+				_playerLine.SetPositions(new[] { _player.transform.position, transform.position });
+			}
+			else
+			{
+				_playerLine.gameObject.SetActive(false);
+			}
+		}
+		else
+		{
+			_playerLine.gameObject.SetActive(false);
+		}
 
 		if (_player.transform.position != Vector3.zero)
 		{
@@ -38,18 +70,25 @@ public class EnemyController : MonoBehaviour {
 
 		if (Vector3.Distance(transform.position, _player.transform.position) < 2f)
 		{
-			_player.TakeDamage(5);
+			_player.TakeDamage(10);
 		}
 
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;
 		Vector2 screenPoint = _mainCam.WorldToScreenPoint(transform.position);
-		if (Vector2.Distance(gazePoint, screenPoint) < 250f)
+		if (Vector2.Distance(gazePoint, screenPoint) < 250f && !_stunningPlayer)
 		{
-			_myRenderer.material.color = Color.blue;
+			_stunningPlayer = true;
+			StartCoroutine(StunPlayer());
 		}
-		else
-		{
-			_myRenderer.material.color = Color.red;
-		}
+
+	}
+
+	private IEnumerator StunPlayer()
+	{
+		_myRenderer.material.color = Color.blue;
+		StartCoroutine(_player.StunPlayer());
+		yield return new WaitForSeconds(3);
+		_myRenderer.material.color = Color.red;
+		_stunningPlayer = false;
 	}
 }
