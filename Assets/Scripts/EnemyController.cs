@@ -16,7 +16,8 @@ public class EnemyController : MonoBehaviour {
 	private void Start ()
 	{
 		_myRenderer = GetComponent<Renderer>();
-		GameObject line = Instantiate(new GameObject(), this.transform);
+		GameObject line = new GameObject("Line");
+		line.transform.parent = this.transform;
 		_playerLine = line.AddComponent<LineRenderer>();
 		_playerLine.startColor = Color.red;
 		_playerLine.endColor = Color.red;
@@ -34,7 +35,7 @@ public class EnemyController : MonoBehaviour {
 	}
 
 	// Update is called once per framec
-	private void Update ()
+	private void FixedUpdate ()
 	{
 		float step = _speed * Time.deltaTime;
 		if (Vector3.Distance(transform.position, _player.transform.position) < 40)

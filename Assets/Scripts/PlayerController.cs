@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+	public int ChestsCollected = 0;
 
 	private Vector2 _middlePoint;
 	private Camera _mainCam;
@@ -23,12 +24,12 @@ public class PlayerController : MonoBehaviour
 		_mainCam = Camera.main;
 		_myRenderer = GetComponent<Renderer>();
 		_hpText = GameObject.Find("HpTxt").GetComponent<Text>();
-		_hpText.text = "HP: " + _hp;
+		_hpText.text = _hp.ToString();
 		_UIController = GameObject.Find("Canvas").GetComponent<UiController>();
 	}
 
 	// Update is called once per frame
-	private void Update ()
+	private void FixedUpdate()
 	{
 		Vector2 gazePoint = TobiiAPI.GetGazePoint().Screen;
 		float xDif = (_middlePoint.x - gazePoint.x) * -1;
@@ -70,7 +71,7 @@ public class PlayerController : MonoBehaviour
 		{
 			_takenDmg = true;
 			_hp -= iDamage;
-			_hpText.text = "HP: " + _hp;
+			_hpText.text = _hp.ToString();
 			StopAllCoroutines();
 			_stunned = false;
 
@@ -78,7 +79,7 @@ public class PlayerController : MonoBehaviour
 
 			if (_hp <= 0)
 			{
-				_UIController.LoseGame();
+				_UIController.LoseGameDeath();
 			}
 		}
 	}

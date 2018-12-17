@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class UiController : MonoBehaviour
 {
-
 	[SerializeField]
 	private GameObject _level;
 	private GameObject _pointerSprite;
@@ -16,6 +15,7 @@ public class UiController : MonoBehaviour
 	private static Image _startBtn;
 	private static bool _gameRunning = false;
 	private readonly bool _debugPointer = false;
+	private float _timerRemaining;
 
 
 	// Use this for initialization
@@ -53,6 +53,7 @@ public class UiController : MonoBehaviour
 				if (c.a < 0.01f)
 				{
 					_gameRunning = true;
+					_timerRemaining = 200;
 					_currentLevel.SetActive(true);
 					_panel.SetActive(false);
 
@@ -67,17 +68,31 @@ public class UiController : MonoBehaviour
 				_startBtn.color = c;
 			}
 		}
+		else
+		{
+			_timerRemaining -= Time.deltaTime;
+			if (_timerRemaining <= 0)
+			{
+				LoseGameTime();
+			}
+		}
 	}
 
 	public void WinGame()
 	{
-		_infoText.text = "Well Done!";
+		_infoText.text = "Well Done!\nYour Score Was: " + CalculateScore();
 		EndGame();
 	}
 
-	public void LoseGame()
+	public void LoseGameDeath()
 	{
 		_infoText.text = "You Died!\nTry Again.";
+		EndGame();
+	}
+
+	private void LoseGameTime()
+	{
+		_infoText.text = "You Ran Out Of Time!\nTry Again.";
 		EndGame();
 	}
 
@@ -91,5 +106,12 @@ public class UiController : MonoBehaviour
 		Color c = _startBtn.material.color;
 		c.a = 1;
 		_startBtn.material.color = c;
+	}
+
+	private int CalculateScore()
+	{
+		float score = 200 - _timerRemaining;
+	    score += GameObject.Find("Player").GetComponent<PlayerController>().ChestsCollected * 100;
+		return (int)score;
 	}
 }
